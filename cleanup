@@ -1,0 +1,9 @@
+#!/bin/bash
+
+n=$(ls -1 ./packages | wc -l)
+echo "$n files before cleanup"
+
+rm -rf ./packages/*
+
+n=$(ls -1 ./packages | wc -l)
+echo "$n files after cleanup"
