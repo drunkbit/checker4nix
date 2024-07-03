@@ -35,7 +35,7 @@ def get_nix_packages(f):
             ["nix-env", "-qa"], capture_output=True, text=True
         ).stdout.lower()
 
-        # write nix packages to file
+        # write to file
         with open(f, "w") as file:
             file.write(s)
 
@@ -80,7 +80,7 @@ def filter_nix_packages(fi, fo):
     # filter out words that are in wu
     w = [word for word in w if not any(unwanted_word in word for unwanted_word in wu)]
 
-    # remove "-git" if present in word
+    # remove "-git" item if present in word
     w = [word.replace("-git\n", "\n") for word in w]
 
     # remove duplicated words
@@ -97,10 +97,10 @@ def filter_nix_packages(fi, fo):
             vn[n] = v
     w = [f'{"-".join(n)}-{v}' for n, v in vn.items()]
 
-    # sort words alphabetically
+    # sort alphabetically
     w.sort()
 
-    # write words to file
+    # write to file
     with open(fo, "w") as file:
         for word in w:
             file.write(word.lower())
@@ -131,10 +131,10 @@ def get_flathub_packages(f):
             n[i].replace(" ", "-") + "-" + v[i].replace(" ", "-") for i in range(len(x))
         ]
 
-        # sort apps alphabetically
+        # sort alphabetically
         a.sort()
 
-        # write apps to file
+        # write to file
         with open(f, "w") as file:
             file.writelines(line.lower() + "\n" for line in a)
 
@@ -174,7 +174,7 @@ def check_similarity(f1, f2):
     n = []  # nix packages
     f = []  # flathub packages
 
-    # get all packages from files
+    # read from files
     with open(f1, "r") as file1, open(f2, "r") as file2:
         n = [line.rstrip() for line in file1]
         f = [line.rstrip() for line in file2]
@@ -194,9 +194,9 @@ def check_similarity(f1, f2):
 def get_similarity(a, b):
     for i in range(len(b)):
         x = SequenceMatcher(None, a, b[i]).ratio()
-        # if apps have same name
+        # if have same name
         if x >= 0.825:
-            # if apps have same version
+            # if have same version
             if x == 1:
                 print("true / {} / {}".format(a, b[i]))
             else:
