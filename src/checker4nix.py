@@ -121,6 +121,7 @@ def get_flathub_packages(f):
             x = json.load(x)
         u = [t + "/" + item for item in x]
 
+        # TODO: get app names and versions via one request and not multiple requests
         # get all app names and version
         with ThreadPoolExecutor(max_workers=10) as p:
             n = list(p.map(get_name, u))
@@ -145,6 +146,7 @@ def get_flathub_packages(f):
         print("flathub packages already exist (" + str(c) + " packages)")
 
 
+# TODO: get app names and versions via one request and not multiple requests
 def get_name(u):
     try:
         with urllib.request.urlopen(u) as x:
@@ -156,6 +158,7 @@ def get_name(u):
         return "error:" + u
 
 
+# TODO: get app names and versions via one request and not multiple requests
 def get_version(u):
     try:
         with urllib.request.urlopen(u) as x:
