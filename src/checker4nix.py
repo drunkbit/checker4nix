@@ -177,15 +177,25 @@ def check_similarity(f1, f2):
 
 
 def get_similarity(a, b):
+    # m = True  # missing
     for i in range(len(b)):
         x = SequenceMatcher(None, a, b[i]).ratio()
         # if have same name
         if x >= 0.825:
+            # m = False  # missing
+            # add tabs based on length for better formatting
+            if len(a) < 14:
+                t = "\t\t"
+            else:
+                t = "\t"
             # if have same version
             if x == 1:
-                print("true / {} / {}".format(a, b[i]))
+                print("true\t/ {}{}/ {}".format(a, t, b[i]))
             else:
-                print("false / {} / {}".format(a, b[i]))
+                print("false\t/ {}{}/ {}".format(a, t, b[i]))
+    # if missing, print it
+    # if m:
+    #    print("missing\t/ {}\t\t/ -".format(a))
 
 
 main()
