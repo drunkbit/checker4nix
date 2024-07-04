@@ -23,3 +23,13 @@ There is a nix-shell available. To use it, simply run the following command in t
 ```
 nix-shell
 ```
+
+## TODOs
+
+- [ ] One request instead of two requests
+
+- [ ] Delete old files based on time
+
+- [ ] Make results more readable
+
+- [ ] Export results into file
