@@ -1,6 +1,6 @@
 import json
 import os
-import re
+import random
 import subprocess
 import time
 import urllib.request
@@ -121,16 +121,9 @@ def get_flathub_packages(f):
             x = json.load(x)
         u = [t + "/" + item for item in x]
 
-        # TODO: get app names and versions via one request and not multiple requests
-        # get all app names and version
+        # get all app names and versions
         with ThreadPoolExecutor(max_workers=10) as p:
-            n = list(p.map(get_name, u))
-            v = list(p.map(get_version, u))
-
-        # set app name and app version into same format as nix packages (name-version)
-        a = [
-            n[i].replace(" ", "-") + "-" + v[i].replace(" ", "-") for i in range(len(x))
-        ]
+            a = list(p.map(get_name_and_version, u))
 
         # sort alphabetically
         a.sort()
@@ -146,25 +139,14 @@ def get_flathub_packages(f):
         print("flathub packages already exist (" + str(c) + " packages)")
 
 
-# TODO: get app names and versions via one request and not multiple requests
-def get_name(u):
+def get_name_and_version(u):
     try:
         with urllib.request.urlopen(u) as x:
             a = json.load(x)
-        time.sleep(0.75)
-        return a["name"]
-    except:
-        print("error: " + u)
-        return "error:" + u
-
-
-# TODO: get app names and versions via one request and not multiple requests
-def get_version(u):
-    try:
-        with urllib.request.urlopen(u) as x:
-            a = json.load(x)
-        time.sleep(0.75)
-        return a["releases"][0]["version"]
+        time.sleep(0.5)
+        result = a["name"] + "-" + a["releases"][0]["version"]
+        result = result.replace(" ", "-")
+        return result
     except:
         print("error: " + u)
         return "error:" + u
