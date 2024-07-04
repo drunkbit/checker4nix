@@ -28,6 +28,6 @@ nix-shell
 
 - [ ] Delete old files based on time
 
-- [ ] Make results more readable
-
 - [ ] Export results into file
+
+- [ ] Compare packages faster and more efficient
