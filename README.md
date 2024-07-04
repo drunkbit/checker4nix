@@ -26,8 +26,6 @@ nix-shell
 
 ## TODOs
 
-- [ ] One request instead of two requests
-
 - [ ] Delete old files based on time
 
 - [ ] Make results more readable
