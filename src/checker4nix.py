@@ -185,17 +185,18 @@ def check_similarity(f1, f2):
 
 
 def get_similarity(a, b):
+    # add tabs based on length for better formatting
+    if len(a) < 14:
+        t = "\t\t"
+    else:
+        t = "\t"
+
     # m = True  # missing
     for i in range(len(b)):
         x = SequenceMatcher(None, a, b[i]).ratio()
         # if have same name
         if x >= 0.825:
             # m = False  # missing
-            # add tabs based on length for better formatting
-            if len(a) < 14:
-                t = "\t\t"
-            else:
-                t = "\t"
             # if have same version
             if x == 1:
                 print(f"{colors.GREEN}true{colors.END}\t/ {a}{t}/ {b[i]}")
