@@ -31,3 +31,5 @@ nix-shell
 - [ ] Export results into file
 
 - [ ] Compare packages faster and more efficient
+
+- [ ] Prevent duplicates in comparison
