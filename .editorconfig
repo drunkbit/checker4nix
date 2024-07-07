@@ -7,6 +7,6 @@ indent_style = space
 indent_size = 4
 space_size = 4
 
-[*.{nix}]
+[*.nix]
 indent_size = 2
 space_size = 2
