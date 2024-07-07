@@ -1,6 +1,5 @@
 import json
 import os
-import random
 import subprocess
 import time
 import urllib.request
@@ -66,7 +65,6 @@ def filter_nix_packages(fi, fo):
         "deprecated",
         "obsolete",
     ]
-
     vn = {}  # newest versions
 
     # delete old file if it exists
@@ -112,8 +110,6 @@ def get_flathub_packages(f):
 
         a = []  # apps
         u = []  # urls
-        n = []  # names
-        v = []  # versions
 
         # get all app urls
         t = "https://flathub.org/api/v2/appstream"
