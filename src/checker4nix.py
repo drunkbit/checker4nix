@@ -214,9 +214,9 @@ def check_similarity(f1, f2):
                 get_similarity, f[i], [word for word in n if word.startswith(f[i][0])]
             )
             # count stats
-            if r.result() == "True-True" or r.result() == "True-False":
+            if r.result() == "true" or r.result() == "false":
                 matches += 1
-                if r.result() == "True-True":
+                if r.result() == "true":
                     true += 1
                 else:
                     false += 1
@@ -243,7 +243,7 @@ def get_similarity(a, b):
     else:
         t = "\t"
 
-    found = "False"
+    found = "missing"
     for i in range(len(b)):
         x = SequenceMatcher(None, a, b[i]).ratio()
         # if have same name
@@ -251,13 +251,13 @@ def get_similarity(a, b):
             # if have same version
             if x == 1:
                 print(f"{colors.GREEN}true{colors.END}\t/ {a}{t}/ {b[i]}")
-                found = "True-True"
+                found = "true"
                 add_item(found, a, b[i])
             else:
                 print(f"{colors.RED}false{colors.END}\t/ {a}{t}/ {b[i]}")
-                found = "True-False"
+                found = "false"
                 add_item(found, a, b[i])
-    if found == "False":
+    if found == "missing":
         print(f"{colors.YELLOW}missing{colors.END}\t/ {a}{t}/ -")
         add_item(found, a, "-")
 
