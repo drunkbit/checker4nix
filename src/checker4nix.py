@@ -8,6 +8,18 @@ from concurrent.futures import ThreadPoolExecutor
 from difflib import SequenceMatcher
 
 
+class colors:
+    GREEN = "\033[92m"
+    RED = "\033[91m"
+    YELLOW = "\033[93m"
+    BLUE = "\033[94m"
+    PINK = "\033[95m"
+    CYAN = "\033[96m"
+    BOLD = "\033[1m"
+    ULINE = "\033[4m"
+    END = "\033[0m"
+
+
 def main():
     # files that will be used
     # files[0]: nix-unfiltered -> nix packages without any filtering
@@ -186,12 +198,12 @@ def get_similarity(a, b):
                 t = "\t"
             # if have same version
             if x == 1:
-                print("true\t/ {}{}/ {}".format(a, t, b[i]))
+                print(f"{colors.GREEN}true{colors.END}\t/ {a}{t}/ {b[i]}")
             else:
-                print("false\t/ {}{}/ {}".format(a, t, b[i]))
+                print(f"{colors.RED}false{colors.END}\t/ {a}{t}/ {b[i]}")
     # if missing, print it
     # if m:
-    #    print("missing\t/ {}\t\t/ -".format(a))
+    #    print(f"{colors.YELLOW}missing{colors.END}\t/ {a}{t}/ -")
 
 
 main()
