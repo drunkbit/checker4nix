@@ -187,12 +187,35 @@ def check_similarity(f1, f2):
     n = [word[:-1] for word in n]
     f = [word[:-1] for word in f]
 
+    # stats
+    total = len(f)  # total number of packages (flathub)
+    matches = 0  # number of matches
+    misses = 0  # number of misses
+    true = 0  # number of true matches
+    false = 0  # number of false matches
+
     # check similarity
     with ThreadPoolExecutor(max_workers=25) as p:
         for i in range(len(f)):
-            p.submit(
+            r = p.submit(
                 get_similarity, f[i], [word for word in n if word.startswith(f[i][0])]
             )
+            if r.result() == "True-True" or r.result() == "True-False":
+                matches += 1
+                if r.result() == "True-True":
+                    true += 1
+                else:
+                    false += 1
+            else:
+                misses += 1
+
+    print(f"\nTotal: {total} (flathub packages)")
+    print(f"Matches: {matches}")
+    print(f"Misses: {misses}")
+    true_percentage = (true / matches) * 100
+    false_percentage = (false / matches) * 100
+    print(f"True: {true} ({true_percentage:.2f}%)")
+    print(f"False: {false} ({false_percentage:.2f}%)")
 
 
 def get_similarity(a, b):
@@ -202,7 +225,7 @@ def get_similarity(a, b):
     else:
         t = "\t"
 
-    found = False
+    found = "False"
     for i in range(len(b)):
         x = SequenceMatcher(None, a, b[i]).ratio()
         # if have same name
@@ -210,12 +233,14 @@ def get_similarity(a, b):
             # if have same version
             if x == 1:
                 print(f"{colors.GREEN}true{colors.END}\t/ {a}{t}/ {b[i]}")
-                found = True
+                found = "True-True"
             else:
                 print(f"{colors.RED}false{colors.END}\t/ {a}{t}/ {b[i]}")
-                found = True
-    if not found:
+                found = "True-False"
+    if found == "False":
         print(f"{colors.YELLOW}missing{colors.END}\t/ {a}{t}/ -")
+
+    return found
 
 
 main()
