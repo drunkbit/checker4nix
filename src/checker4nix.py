@@ -200,6 +200,7 @@ def check_similarity(f1, f2):
             r = p.submit(
                 get_similarity, f[i], [word for word in n if word.startswith(f[i][0])]
             )
+            # count stats
             if r.result() == "True-True" or r.result() == "True-False":
                 matches += 1
                 if r.result() == "True-True":
@@ -209,6 +210,7 @@ def check_similarity(f1, f2):
             else:
                 misses += 1
 
+    # print stats
     print(f"\nTotal: {total} (flathub packages)")
     print(f"Matches: {matches}")
     print(f"Misses: {misses}")
