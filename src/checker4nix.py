@@ -191,20 +191,20 @@ def get_similarity(a, b):
     else:
         t = "\t"
 
-    # m = True  # missing
+    found = False
     for i in range(len(b)):
         x = SequenceMatcher(None, a, b[i]).ratio()
         # if have same name
         if x >= 0.825:
-            # m = False  # missing
             # if have same version
             if x == 1:
                 print(f"{colors.GREEN}true{colors.END}\t/ {a}{t}/ {b[i]}")
+                found = True
             else:
                 print(f"{colors.RED}false{colors.END}\t/ {a}{t}/ {b[i]}")
-    # if missing, print it
-    # if m:
-    #    print(f"{colors.YELLOW}missing{colors.END}\t/ {a}{t}/ -")
+                found = True
+    if not found:
+        print(f"{colors.YELLOW}missing{colors.END}\t/ {a}{t}/ -")
 
 
 main()
