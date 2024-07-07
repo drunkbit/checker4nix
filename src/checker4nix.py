@@ -168,10 +168,10 @@ def get_name_and_version(u):
         if version.startswith("v"):
             version = version[1:]
         # add "-" between name and version
-        result = a["name"] + "-" + version
+        item = a["name"] + "-" + version
         # replace spaces with "-" (to match nix packages)
-        result = result.replace(" ", "-")
-        return result
+        item = item.replace(" ", "-")
+        return item
     except:
         print("error: " + u)
         return "error:" + u
