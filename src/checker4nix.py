@@ -76,6 +76,10 @@ def filter_nix_packages(fi, fo):
         "old",
         "deprecated",
         "obsolete",
+        "broken",
+        "outdated",
+        "legacy",
+        "error",
     ]
     vn = {}  # newest versions
 
