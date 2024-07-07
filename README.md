@@ -32,6 +32,6 @@ nix-shell
 
 - [ ] Compare packages faster and more efficient
 
-- [ ] Color output
-
 - [ ] Add statistics
+
+- [ ] Filter flathub packages
