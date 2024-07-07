@@ -24,17 +24,24 @@ def main():
     # files that will be used
     # files[0]: nix-unfiltered -> nix packages without any filtering
     # files[1]: nix -> nix packages after filtering
-    # files[2]: flathub -> flathub packages
-    files = ["./packages/nix-unfiltered", "./packages/nix", "./packages/flathub"]
+    # files[2]: flathub-unfiltered -> flathub packages without any filtering
+    # files[3]: flathub -> flathub packages after filtering
+    files = [
+        "./packages/nix-unfiltered",
+        "./packages/nix",
+        "./packages/flathub-unfiltered",
+        "./packages/flathub",
+    ]
 
     # check if dir exists, if not create it
     if not os.path.exists("./packages"):
         os.makedirs("./packages")
 
     get_nix_packages(files[0])
-    filter_nix_packages(files[0], files[1])
+    filter_packages(files[0], files[1], "nix")
     get_flathub_packages(files[2])
-    check_similarity(files[1], files[2])
+    filter_packages(files[2], files[3], "flathub")
+    check_similarity(files[1], files[3])
 
 
 def get_nix_packages(f):
@@ -57,8 +64,8 @@ def get_nix_packages(f):
         print("nix packages already exist (" + str(c) + " packages)")
 
 
-def filter_nix_packages(fi, fo):
-    print("filter nix packages")
+def filter_packages(fi, fo, str):
+    print(f"filter {str} packages")
 
     w = []  # words
     wu = [  # unwanted chars / words
