@@ -163,7 +163,12 @@ def get_name_and_version(u):
         with urllib.request.urlopen(u) as x:
             a = json.load(x)
         time.sleep(0.5)
-        result = a["name"] + "-" + a["releases"][0]["version"]
+        version = a["releases"][0]["version"]
+        # remove "v" from version
+        if version.startswith("v"):
+            version = version[1:]
+        # add "-" between name and version
+        result = a["name"] + "-" + version
         result = result.replace(" ", "-")
         return result
     except:
