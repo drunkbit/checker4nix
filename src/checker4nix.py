@@ -1,3 +1,4 @@
+import hashlib
 import json
 import os
 import subprocess
@@ -33,9 +34,15 @@ def main():
         "./packages/flathub",
     ]
 
-    # check if dir exists, if not create it
+    # things that will be exported
+    global results
+    results = {}
+
+    # check if dirs exist, if not create it
     if not os.path.exists("./packages"):
         os.makedirs("./packages")
+    if not os.path.exists("./results"):
+        os.makedirs("./results")
 
     get_nix_packages(files[0])
     filter_packages(files[0], files[1], "nix")
@@ -225,6 +232,9 @@ def check_similarity(f1, f2):
     print(f"True: {true} ({true_percentage:.2f}%)")
     print(f"False: {false} ({false_percentage:.2f}%)")
 
+    # export results
+    export_results()
+
 
 def get_similarity(a, b):
     # add tabs based on length for better formatting
@@ -242,13 +252,28 @@ def get_similarity(a, b):
             if x == 1:
                 print(f"{colors.GREEN}true{colors.END}\t/ {a}{t}/ {b[i]}")
                 found = "True-True"
+                add_item(found, a, b[i])
             else:
                 print(f"{colors.RED}false{colors.END}\t/ {a}{t}/ {b[i]}")
                 found = "True-False"
+                add_item(found, a, b[i])
     if found == "False":
         print(f"{colors.YELLOW}missing{colors.END}\t/ {a}{t}/ -")
+        add_item(found, a, "-")
 
     return found
+
+
+def export_results():
+    timestamp = str(int(time.time()))
+    path = f"./results/results_{timestamp}.json"
+    with open(path, "w") as file:
+        json.dump(results, file)
+
+
+def add_item(type, flat, nix):
+    id = hashlib.sha256(str.encode(type + flat + nix)).hexdigest()
+    results[id] = {"type": type, "flat": flat, "nix": nix}
 
 
 main()
