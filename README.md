@@ -31,7 +31,3 @@ nix-shell
 - [ ] Export results into file
 
 - [ ] Compare packages faster and more efficient
-
-- [ ] Add statistics
-
-- [ ] Filter flathub packages
