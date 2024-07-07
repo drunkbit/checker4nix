@@ -169,6 +169,7 @@ def get_name_and_version(u):
             version = version[1:]
         # add "-" between name and version
         result = a["name"] + "-" + version
+        # replace spaces with "-" (to match nix packages)
         result = result.replace(" ", "-")
         return result
     except:
