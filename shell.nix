@@ -10,6 +10,7 @@ let
   # python version
   myPython = pkgs.python3;
 
+  # python packages
   pythonWithPkgs = myPython.withPackages (pythonPkgs: with pythonPkgs; [
     black
     ipython
