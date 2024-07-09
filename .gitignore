@@ -1,5 +1,5 @@
 .venv
 .vscode
 
-/results/*
 /packages/*
+/results/*
