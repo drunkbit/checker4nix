@@ -1,12 +1,11 @@
+from concurrent.futures import ThreadPoolExecutor
+from difflib import SequenceMatcher
 import hashlib
 import json
 import os
 import subprocess
 import time
 import urllib.request
-
-from concurrent.futures import ThreadPoolExecutor
-from difflib import SequenceMatcher
 
 
 class colors:
@@ -23,35 +22,36 @@ class colors:
 
 def main():
     # files that will be used
-    # files[0]: nix-unfiltered -> nix packages without any filtering
+    # files[0]: nix-unfiltered -> nix packages before any filtering
     # files[1]: nix -> nix packages after filtering
-    # files[2]: flathub-unfiltered -> flathub packages without any filtering
+    # files[2]: flathub-unfiltered -> flathub packages before any filtering
     # files[3]: flathub -> flathub packages after filtering
+    path = "./packages/"
     files = [
-        "./packages/nix-unfiltered",
-        "./packages/nix",
-        "./packages/flathub-unfiltered",
-        "./packages/flathub",
+        f"{path}nix-unfiltered",
+        f"{path}nix",
+        f"{path}flathub-unfiltered",
+        f"{path}flathub",
     ]
 
-    # things that will be exported
+    # results to be exported (to json)
     global results
     results = {}
 
-    # check if dirs exist, if not create it
+    # check if dirs exist if not create it
     if not os.path.exists("./packages"):
         os.makedirs("./packages")
     if not os.path.exists("./results"):
         os.makedirs("./results")
 
     get_nix_packages(files[0])
-    filter_packages(files[0], files[1], "nix")
     get_flathub_packages(files[2])
+    filter_packages(files[0], files[1], "nix")
     filter_packages(files[2], files[3], "flathub")
     check_similarity(files[1], files[3])
 
 
-def get_nix_packages(f):
+def get_nix_packages(f) -> None:
     if not os.path.exists(f):
         print("pull nix packages (can take up to a minute)")
 
@@ -71,7 +71,38 @@ def get_nix_packages(f):
         print("nix packages already exist (" + str(c) + " packages)")
 
 
-def filter_packages(fi, fo, str):
+def get_flathub_packages(f) -> None:
+    if not os.path.exists(f):
+        print("pull flathub packages (can take a few minutes)")
+
+        a = []  # apps
+        u = []  # urls
+
+        # get all app urls
+        t = "https://flathub.org/api/v2/appstream"
+        with urllib.request.urlopen(t) as x:
+            x = json.load(x)
+        u = [t + "/" + item for item in x]
+
+        # get all app names and versions
+        with ThreadPoolExecutor(max_workers=10) as p:
+            a = list(p.map(_get_name_and_version, u))
+
+        # sort alphabetically
+        a.sort()
+
+        # write to file
+        with open(f, "w") as file:
+            file.writelines(line.lower() + "\n" for line in a)
+
+    else:
+        # count packages
+        with open(f, "r") as file:
+            c = sum(1 for line in file)
+        print("flathub packages already exist (" + str(c) + " packages)")
+
+
+def filter_packages(fi, fo, str) -> None:
     print(f"filter {str} packages")
 
     w = []  # words
@@ -134,57 +165,7 @@ def filter_packages(fi, fo, str):
             file.write(word.lower())
 
 
-def get_flathub_packages(f):
-    if not os.path.exists(f):
-        print("pull flathub packages (can take a few minutes)")
-
-        a = []  # apps
-        u = []  # urls
-
-        # get all app urls
-        t = "https://flathub.org/api/v2/appstream"
-        with urllib.request.urlopen(t) as x:
-            x = json.load(x)
-        u = [t + "/" + item for item in x]
-
-        # get all app names and versions
-        with ThreadPoolExecutor(max_workers=10) as p:
-            a = list(p.map(get_name_and_version, u))
-
-        # sort alphabetically
-        a.sort()
-
-        # write to file
-        with open(f, "w") as file:
-            file.writelines(line.lower() + "\n" for line in a)
-
-    else:
-        # count packages
-        with open(f, "r") as file:
-            c = sum(1 for line in file)
-        print("flathub packages already exist (" + str(c) + " packages)")
-
-
-def get_name_and_version(u):
-    try:
-        with urllib.request.urlopen(u) as x:
-            a = json.load(x)
-        time.sleep(0.5)
-        version = a["releases"][0]["version"]
-        # remove "v" from version
-        if version.startswith("v"):
-            version = version[1:]
-        # add "-" between name and version
-        item = a["name"] + "-" + version
-        # replace spaces with "-" (to match nix packages)
-        item = item.replace(" ", "-")
-        return item
-    except:
-        print("error: " + u)
-        return "error:" + u
-
-
-def check_similarity(f1, f2):
+def check_similarity(f1, f2) -> None:
     print("find similar packages (can take a few minutes) (spam ctrl+c to cancel)")
     print("status / flathub / nix")
 
@@ -211,7 +192,7 @@ def check_similarity(f1, f2):
     with ThreadPoolExecutor(max_workers=25) as p:
         for i in range(len(f)):
             r = p.submit(
-                get_similarity, f[i], [word for word in n if word.startswith(f[i][0])]
+                _get_similarity, f[i], [word for word in n if word.startswith(f[i][0])]
             )
             # count stats
             if r.result() == "true" or r.result() == "false":
@@ -233,10 +214,29 @@ def check_similarity(f1, f2):
     print(f"False: {false} ({false_percentage:.2f}%)")
 
     # export results
-    export_results()
+    _export_results()
 
 
-def get_similarity(a, b):
+def _get_name_and_version(u) -> str:
+    try:
+        with urllib.request.urlopen(u) as x:
+            a = json.load(x)
+        time.sleep(0.5)
+        version = a["releases"][0]["version"]
+        # remove "v" from version
+        if version.startswith("v"):
+            version = version[1:]
+        # add "-" between name and version
+        item = a["name"] + "-" + version
+        # replace spaces with "-" (to match nix packages)
+        item = item.replace(" ", "-")
+        return item
+    except:
+        print("error: " + u)
+        return "error:" + u
+
+
+def _get_similarity(a, b) -> str:
     # add tabs based on length for better formatting
     if len(a) < 14:
         t = "\t\t"
@@ -252,28 +252,29 @@ def get_similarity(a, b):
             if x == 1:
                 print(f"{colors.GREEN}true{colors.END}\t/ {a}{t}/ {b[i]}")
                 found = "true"
-                add_item(found, a, b[i])
+                _add_item(found, a, b[i])
             else:
                 print(f"{colors.RED}false{colors.END}\t/ {a}{t}/ {b[i]}")
                 found = "false"
-                add_item(found, a, b[i])
+                _add_item(found, a, b[i])
     if found == "missing":
         print(f"{colors.YELLOW}missing{colors.END}\t/ {a}{t}/ -")
-        add_item(found, a, "-")
+        _add_item(found, a, "-")
 
     return found
 
 
-def export_results():
+def _add_item(type, flat, nix) -> None:
+    id = hashlib.sha256(str.encode(type + flat + nix)).hexdigest()
+    results[id] = {"type": type, "flat": flat, "nix": nix}
+
+
+def _export_results() -> None:
     timestamp = str(int(time.time()))
     path = f"./results/results_{timestamp}.json"
     with open(path, "w") as file:
         json.dump(results, file)
 
 
-def add_item(type, flat, nix):
-    id = hashlib.sha256(str.encode(type + flat + nix)).hexdigest()
-    results[id] = {"type": type, "flat": flat, "nix": nix}
-
-
-main()
+if __name__ == "__main__":
+    main()
