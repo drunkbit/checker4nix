@@ -16,6 +16,14 @@ To use checker4nix, follow these steps:
     python src/checker4nix.py
     ```
 
+## Output
+
+The output contains the following information:
+
+* missing: packages is in flathub but not in nix
+* false: flathub and nix have different versions
+* true: flathub and nix have the same version
+
 ## Tips
 
 There is a nix-shell available. To use it, simply run the following command in the project directory:
@@ -27,7 +35,5 @@ nix-shell
 ## TODOs
 
 - [ ] Delete old files based on time
-
 - [ ] Compare packages faster and more efficient
-
 - [ ] Prevent duplicates in comparison
