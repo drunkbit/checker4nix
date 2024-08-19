@@ -12,8 +12,7 @@ let
 
   # python packages
   pythonWithPkgs = myPython.withPackages (pythonPkgs: with pythonPkgs; [
-    # note: add python packages into requirements.txt file
-    # note: if vscode does not detect python module from requirements.txt, change python interpreter (bottom right corner)
+    # note: add python packages into requirements.txt file instead of here
     black
     ipython
     pip
@@ -22,26 +21,47 @@ let
     wheel
   ]);
 
+  lib-path = with pkgs; lib.makeLibraryPath [
+    libffi
+    openssl
+    stdenv.cc.cc
+  ];
+
   shell = pkgs.mkShell {
     buildInputs = with pkgs; [
       # python version with python packages from above
       pythonWithPkgs
 
+      # other packages needed for compiling python libs
+      libffi
+      openssl
+      readline
+
+      # unfortunately needed because of messing with LD_LIBRARY_PATH below
+      git
+      openssh
+      rsync
+
       # formatter for this file
       nixpkgs-fmt
+
+      # need to run this project
     ];
 
     shellHook = ''
       # allow use of wheels
       SOURCE_DATE_EPOCH=$(date +%s)
 
+      # augment dynamic linker path
+      export "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${lib-path}"
+
       # setup virtual environment if it does not already exist
-      VENV=.venv
+      VENV=$HOME/.venv
       if test ! -d $VENV; then
         virtualenv $VENV
       fi
-      source ./$VENV/bin/activate
-      export PYTHONPATH=`pwd`/$VENV/${myPython.sitePackages}/:$PYTHONPATH
+      source $VENV/bin/activate
+      export PYTHONPATH=$VENV/${myPython.sitePackages}/:$PYTHONPATH
 
       # install packages from requirements.txt via pip
       pip install --disable-pip-version-check -r requirements.txt
